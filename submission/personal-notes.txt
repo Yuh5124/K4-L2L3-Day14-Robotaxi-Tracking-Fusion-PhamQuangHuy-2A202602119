@@ -2,34 +2,73 @@ PHIẾU CÁ NHÂN — DAY 14
 Điền file này, chạy QC vào submission/qc-j01 và submission/qc-practice, commit rồi nộp link repo.
 Không dán ảnh, toạ độ điểm hay nội dung file export vào đây.
 
-Họ tên / mã học viên:
-Object J01 (a/b/c/d theo docs/cases.md) / track ID trong task J01:
-Phiên bản CVAT / overlay đã bật (có/không):
+Họ tên / mã học viên: Phạm Quang Huy / 2A202602119
+Object J01 (a/b/c/d theo docs/cases.md) / track ID trong task J01: J01-b (chữ số cuối 9; frame neo 38, ROI [1613, 863, 1902, 1022]) / track_id 0 trong export (id 13 trên server CVAT sau rework), task "Day14 J01 Pham Quang Huy"
+Phiên bản CVAT / overlay đã bật (có/không): CVAT local 2.76.1 (README ghi 2.74.1) / có — overlay.py up báo "overlay: on", plugin HTTP 200, config chưa đăng nhập 401, calib-diagnostic.json sha256 235ca110ac10, 66 frame
+
+Cách làm (khai báo): cuboid được đặt qua CVAT REST API, không kéo tay trong giao diện. L/W/H đo từ point cloud ở các frame dày. Tâm và heading từng frame tính bằng cách ước lượng chuyển động của xe mình: ICP giữa các PCD liên tiếp trên phần cảnh tĩnh, mỗi bước khoảng 1.35–1.63 m/frame. Sau đó giữ vật ở một vị trí cố định trong hệ toạ độ chung, vì J01-b là xe đỗ (xem phần J01). Phần đối chiếu camera dùng phép chiếu số với cùng calibration của overlay; tôi đã mở job 3D trong CVAT để xem lại track.
 
 J01 — TRACK LÕI
-Frame fit và lý do:
-L / W / H (m):
-Keyframe quan trọng và lý do:
-Đã bấm F qua đủ frame 0–65 (có/không):
+Frame fit và lý do: frame tham chiếu 38–46 (cách xe 10–20 m, 1.300–3.900 điểm trong box). Đây là các frame thấy rõ sườn gần và nóc xe, cụm điểm không dính xe khác. Frame 38 còn nằm trọn trong image_1 nên kiểm được bằng overlay. Chiều rộng đo thêm trên mặt đuôi xe ở frame 22–36, khi xe ở phía trước nên LiDAR thấy cả mặt đuôi. Không fit ở frame 0–15 vì xe cách 50–70 m, chỉ còn 30–110 điểm.
+L / W / H (m): 4.05 / 1.80 / 1.55
+  - L: đầu–đuôi theo trục xe ở frame 34–52 nằm khoảng -1.95…+2.07 m quanh tâm.
+  - W: mặt đuôi ở frame 22–36 rộng khoảng +0.5…-1.25 m; phía xa có bụi cây hoặc vật cao hơn 1.5 m nên chỉ lấy phần thân dưới 1.3 m.
+  - H: nóc xe ở frame 38–54 cao 1.52–1.56 m so với mặt đường lân cận.
+Keyframe quan trọng và lý do: 0, 4, 10, 15, 19, 22, 25, 27, 29, 33, 36, 43, 57, 64, 65 (15 keyframe trên 66 frame).
+  - J01-b là xe đỗ, nên tâm của nó trong hệ toạ độ xe mình chỉ đổi do xe mình chạy và rẽ.
+  - Frame 14–36: xe mình rẽ (khoảng 0.6–1.0°/frame), heading tương đối của J01-b đổi từ 23.5° (frame 0) về 0° (frame 36), nên keyframe dày.
+  - Frame 36–65: xe mình đi gần thẳng, keyframe thưa.
+  - Chọn keyframe sao cho tâm nội suy lệch ≤ 0.1 m và heading lệch ≤ 1° so với vị trí tính cho từng frame.
+  - Một kích thước suốt track; không có outside vì xe có mặt từ frame 0 tới 65.
+Đã bấm F qua đủ frame 0–65 (có/không): đã kiểm đủ 66 frame bằng số liệu export (n_frames = 66, mỗi frame có số điểm trong box). Chưa bấm F trong giao diện.
 Đoạn thưa / che khuất / dễ nhầm identity:
+  - Frame 0–15: xe ở xa 53–74 m, chỉ 26–150 điểm trong box. Có cây ở phía trên xe (điểm cao tới khoảng 7 m) và bụi cây hoặc vật sát phía xa.
+  - Bản track đầu tiên fit từng frame ở đoạn này nên box lệch tới khoảng 3 m. Tôi mở job và thấy box ở frame 0 gần như không có điểm. Đã sửa bằng cách giữ vị trí cố định của xe đỗ (xem phần sửa sau QC).
+  - Frame 43–65: xe ra khỏi FOV camera trước (vượt mép phải ảnh), chỉ còn LiDAR. Xe gần nhất khoảng 8.9 m ở frame 49–50.
 
 SELF-QC (từ qc_tracks.csv / qc_flags.csv)
-Lần QC đầu — cờ của track J01 (loại, frame):
-Quyết định cho từng cờ (sửa / giữ vì hợp lệ / chưa đủ evidence) và lý do:
+Lần QC đầu — cờ của track J01 (loại, frame): không có cờ. Bản đầu: 66 frame, 15 keyframe, drift 0, yaw_step_max 1.72°, pos_step_max 1.75 m.
+Quyết định cho từng cờ (sửa / giữ vì hợp lệ / chưa đủ evidence) và lý do: không có cờ để xử lý. Dù QC không báo gì, xem lại trong CVAT vẫn thấy box ở frame 0 không chứa xe. Vì vậy QC không có cờ chưa đủ để kết luận track đúng: script không thấy lỗi lệch vị trí dần ở frame thưa, cũng không thấy heading sai chậm (dưới 25°/frame).
 Đã sửa gì sau QC đầu; QC cuối còn cờ nào:
-Nhận xét của bạn cùng cặp và bạn đồng ý/không đồng ý vì sao:
+  - Kiểm giả thuyết xe đỗ: ước lượng chuyển động xe mình bằng ICP rồi đưa tâm box các frame 16–65 về một hệ toạ độ chung. Tâm chỉ dao động khoảng ±0.1 m, nên J01-b đứng yên.
+  - Hai lỗi của bản đầu: (1) frame 0–12 tâm lệch tới khoảng 3 m; (2) frame 16–36 heading lệch tới khoảng 15°, do bản đầu lấy heading theo hướng chuyển động tương đối.
+  - Bản sửa: gộp điểm của frame 30–62 để đo lại heading (23.5° trong hệ chung) và sườn gần. Tâm từng frame lấy từ vị trí cố định đó; độ cao box theo mặt đường đo quanh xe ở từng frame. Giữ nguyên L/W/H 4.05 / 1.80 / 1.55.
+  - Sau khi sửa: frame 0 có 26 điểm trong box, box nằm đúng vị trí xe đỗ (bản cũ lệch khoảng 3 m); frame 38 có 1.712 điểm.
+  - QC cuối (bản trong submission/qc-j01): không có cờ; 66 frame, 15 keyframe, drift 0, yaw_step_max 1.15°, pos_step_max 1.64 m, range 8.9–74.4 m.
+  - Rework lần 2 (đầu–đuôi): đã thử xoay J01-b và B02 thêm 180°. Xem lại trong CVAT thấy sai, nên trả về hướng cũ: mặt trước (+x) quay theo chiều xe mình chạy, heading trong hệ toạ độ chung 23.5°.
+  - Hướng này khớp profile chiều cao trên LiDAR: phía +x có đoạn thấp dài khoảng 1.5 m, giống nắp capo. Số liệu QC ở trên là của bản cuối, sau khi đã trả về hướng cũ.
+Nhận xét của bạn cùng cặp và bạn đồng ý/không đồng ý vì sao: không có bạn cùng cặp; theo trao đổi với Lab Coach, mục này dùng review bổ sung trên đoạn rủi ro.
+  - Frame 0–15 (xa, thưa điểm): vị trí dựa trên giả định xe đỗ, đã kiểm bằng ICP (tâm ±0.1 m qua 50 frame); cần xác nhận overlay frame 0 và 8 để chắc không rơi vào xe đỗ bên cạnh. → Đồng ý giữ; căn cứ chắc hơn fit theo vài điểm thưa.
+  - Frame 38 lệch khoảng 30 px so với ROI. → Đồng ý giữ; cụm điểm LiDAR khớp box, ROI chỉ là ước lượng.
+  - Đầu–đuôi: thử xoay 180° bị bác khi xem lại trong CVAT. → Đồng ý giữ hướng hiện tại; profile chiều cao có đoạn nắp capo ở phía +x.
+  - Chiều rộng 1.80 m: phía xa xe bị bụi cây che. → Chưa đủ evidence để đổi; nếu ảnh cho thấy xe rộng hơn thì tăng W lên 1.85–1.9 m.
 
 CAMERA–LIDAR (overlay trên image_1)
-Ca bình thường (frame / quan sát):
-Ca khó (frame / quan sát 2D / quan sát 3D):
+Ca bình thường (frame / quan sát): frame 38.
+  - Cuboid chiếu ra bbox khoảng [1646, 863, 1932, 1033], ROI J01-b là [1613, 863, 1902, 1022]. Trùng theo chiều dọc; lệch phải khoảng 30 px và vượt mép phải ảnh (1920).
+  - Có 1.712 điểm LiDAR trong box; các điểm ngay ngoài box chủ yếu ở phía xa (bụi cây hoặc vật phía sau).
+Ca khó (frame / quan sát 2D / quan sát 3D): frame 0 và frame 8.
+  - 2D: cuboid nhỏ, khoảng [644, 841, 715, 883] ở frame 0 và [733, 840, 815, 890] ở frame 8.
+  - 3D: xe cách 74 m và 63 m, chỉ 26 và 66 điểm trong box, có cây phía trên. Đây là ca bản đầu sai (box trống ở frame 0).
+  - Ca khó phụ: frame 42–43, cuboid vượt mép phải ảnh ([1882…2223] và [1961…2220]), xe ra khỏi FOV camera trong khi LiDAR còn 2.200–3.200 điểm.
 Giả thuyết nguyên nhân (annotation / FOV / occlusion / sparse / nghi calibration / chưa đủ evidence):
+  - Frame 0–12 bản đầu: lỗi annotation, sinh ra vì sparse. Đã sửa.
+  - Frame 38: lệch khoảng 30 px so với ROI. ROI chỉ là vị trí ước lượng, cụm điểm khớp box; chưa đủ evidence để coi là lỗi.
+  - Frame 42–43: FOV.
+  - Không thấy dấu hiệu lệch kiểu calibration.
 Hành động (sửa / giữ / báo Lab Coach) và lý do:
+  - Sửa đoạn xa: dùng vị trí cố định của xe đỗ, có evidence ICP, thay cho fit theo vài điểm thưa.
+  - Giữ frame 38 và 42–43: không kéo box theo pixel; không coi xe biến mất khi ra khỏi FOV.
+  - Nên xem lại overlay frame 0, 8, 38 bằng mắt sau khi sửa.
 
 CASE NGẮN (task practice)
-Case → track ID (ví dụ B01 → 3):
-Case đã xong:
-Case đang dở / chỗ kẹt:
-fragmentation_suspect ở đầu/cuối case đã kiểm là do cách cắt case (có/không):
+Case → track ID (ví dụ B01 → 3): B01 → 0, B02 → 1, B03 → 2 (track_id trong export; id trên server CVAT sau rework lần lượt 14, 15, 16)
+Case đã xong (cả ba đều là xe đỗ; sau khi rework, dựng lại bằng vị trí cố định trong hệ toạ độ chung, keyframe ở frame đầu/cuối, sai số nội suy ≤ 0.09 m):
+  - B01 (frame 16–21, outside ở 22): L/W/H 4.40 / 1.85 / 1.75. Cuboid frame 21 chiếu ra [1431, 846, 1758, 1035], ROI [1408, 847, 1730, 1023].
+  - B02 (frame 28–33, outside ở 34): cùng chiếc xe với J01-b, nên dùng cùng L/W/H và vị trí của track J01-b đã sửa. Cuboid frame 33 chiếu ra [1441, 847, 1643, 965], ROI [1425, 849, 1630, 962].
+  - B03 (frame 36–41, outside ở 42): L/W/H 4.50 / 1.85 / 1.65. Cuboid frame 41 chiếu ra [1437, 844, 1610, 959], ROI [1415, 847, 1590, 961].
+Case đang dở / chỗ kẹt: B04, B05, B06 chưa làm. Fit tự động ở frame neo cho ra cuboid không khớp ROI (B04 ROI ở mép trái ảnh; B05, B06 nằm trong cụm xe), nên không đưa lên để tránh nhầm object.
+fragmentation_suspect ở đầu/cuối case đã kiểm là do cách cắt case (có/không): có. 6 cờ ở frame 16/21 (B01), 28/33 (B02), 36/41 (B03), đúng frame đầu/cuối của từng case.
 
 THỜI GIAN
-J01 / case ngắn / QC và fusion:
+J01 / case ngắn / QC và fusion: khoảng 90 / 20 / 20 phút (tính cả thời gian dựng script fit từ point cloud và gọi CVAT API).
