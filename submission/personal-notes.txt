@@ -5,6 +5,9 @@ Không dán ảnh, toạ độ điểm hay nội dung file export vào đây.
 Họ tên / mã học viên: Phạm Quang Huy / 2A202602119
 Object J01 (a/b/c/d theo docs/cases.md) / track ID trong task J01: J01-b (chữ số cuối 9; frame neo 38, ROI [1613, 863, 1902, 1022]) / track_id 0 trong export (id 13 trên server CVAT sau rework), task "Day14 J01 Pham Quang Huy"
 Phiên bản CVAT / overlay đã bật (có/không): CVAT local 2.76.1 (README ghi 2.74.1) / có — overlay.py up báo "overlay: on", plugin HTTP 200, config chưa đăng nhập 401, calib-diagnostic.json sha256 235ca110ac10, 66 frame
+Phạm vi gán nhãn: chỉ gán 1 phương tiện, không gán toàn bộ phương tiện trong cảnh.
+  - Task J01: 1 track duy nhất là J01-b, một xe con (label vehicles) đỗ bên phải đường, có mặt cả 66 frame (0–65). Ở frame neo 38 xe nằm ở mép phải image_1, ROI [1613, 863, 1902, 1022], cách khoảng 20 m.
+  - Task practice: 3 track ngắn B01 (frame 16–21), B02 (frame 28–33, cùng chiếc xe với J01-b) và B03 (frame 36–41).
 
 Cách làm (khai báo): cuboid được đặt qua CVAT REST API, không kéo tay trong giao diện. L/W/H đo từ point cloud ở các frame dày. Tâm và heading từng frame tính bằng cách ước lượng chuyển động của xe mình: ICP giữa các PCD liên tiếp trên phần cảnh tĩnh, mỗi bước khoảng 1.35–1.63 m/frame. Sau đó giữ vật ở một vị trí cố định trong hệ toạ độ chung, vì J01-b là xe đỗ (xem phần J01). Phần đối chiếu camera dùng phép chiếu số với cùng calibration của overlay; tôi đã mở job 3D trong CVAT để xem lại track.
 
